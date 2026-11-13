@@ -7,6 +7,7 @@ const game = new Game();
 
 const info = document.querySelector('.info');
 const msg = document.querySelector('.message-container');
+const ARROW_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.button');
@@ -28,9 +29,13 @@ document.addEventListener('click', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
+  if (!ARROW_KEYS.includes(e.key)) {
+    return;
+  }
+
   e.preventDefault();
 
-  if (game.status !== 'playing') {
+  if (game.getStatus() !== 'playing') {
     return;
   }
 
@@ -64,21 +69,15 @@ function update() {
 
   info.querySelector('span').textContent = score;
 
+  startMsg.classList.add('hidden');
+  winMsg.classList.add('hidden');
+  loseMsg.classList.add('hidden');
+
   if (gameStatus === 'idle') {
-    startMsg.classList.add('hidden');
-  }
-
-  if (gameStatus === 'playing') {
-    startMsg.classList.add('hidden');
-    winMsg.classList.add('hidden');
-    loseMsg.classList.add('hidden');
-  }
-
-  if (gameStatus === 'win') {
+    startMsg.classList.remove('hidden');
+  } else if (gameStatus === 'win') {
     winMsg.classList.remove('hidden');
-  }
-
-  if (gameStatus === 'lose') {
+  } else if (gameStatus === 'lose') {
     loseMsg.classList.remove('hidden');
   }
 

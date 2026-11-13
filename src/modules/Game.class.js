@@ -1,5 +1,6 @@
 /* eslint-disable indent */
 'use strict';
+
 class Game {
   /**
    * Creates a new game instance.
@@ -16,9 +17,6 @@ class Game {
    * initial state.
    */
   constructor(initialState) {
-    // eslint-disable-next-line no-console
-    console.log(initialState);
-
     this.ROW_SIZE = 4;
     this.isInitial = !!initialState;
     this.initialState = initialState;
@@ -28,6 +26,10 @@ class Game {
   moveHorizontal(trajectory) {
     for (let i = 0; i < this.field.length; i++) {
       let row = this.field[i].filter((num) => num !== 0);
+
+      if (trajectory === 'right') {
+        row.reverse();
+      }
 
       for (let j = 1; j < row.length; j++) {
         if (row[j - 1] === row[j]) {
@@ -50,107 +52,59 @@ class Game {
       }
 
       if (trajectory === 'right') {
-        this.field[i] = row.reverse();
-      } else {
-        this.field[i] = row;
+        row.reverse();
+      }
+
+      this.field[i] = row;
+    }
+  }
+
+  move(direction) {
+    if (this.status !== 'playing') {
+      return;
+    }
+
+    const prev = JSON.stringify(this.field);
+
+    if (direction === 'left') {
+      this.moveHorizontal('left');
+    } else if (direction === 'right') {
+      this.moveHorizontal('right');
+    } else if (direction === 'up') {
+      this.field = this.transpose(this.field);
+      this.moveHorizontal('left');
+      this.field = this.transpose(this.field);
+    } else if (direction === 'down') {
+      this.field = this.transpose(this.field);
+      this.moveHorizontal('right');
+      this.field = this.transpose(this.field);
+    }
+
+    const current = JSON.stringify(this.field);
+
+    if (prev !== current) {
+      this.addRandomTile();
+
+      if (this.status !== 'win' && this.isGameOver()) {
+        this.status = 'lose';
       }
     }
   }
+
   moveLeft() {
-    const prev = JSON.stringify(this.field);
-
-    this.moveHorizontal('left');
-
-    const current = JSON.stringify(this.field);
-
-    if (prev !== current) {
-      this.addRandomTile();
-
-      if (this.isGameOver()) {
-        this.status = 'lose';
-      }
-
-      if (this.status === 'idle') {
-        this.status = 'playing';
-      }
-    }
-
-    if (this.isGameOver()) {
-      this.status = 'lose';
-    }
+    this.move('left');
   }
+
   moveRight() {
-    const prev = JSON.stringify(this.field);
-
-    this.moveHorizontal('right');
-
-    const current = JSON.stringify(this.field);
-
-    if (prev !== current) {
-      this.addRandomTile();
-
-      if (this.isGameOver()) {
-        this.status = 'lose';
-      }
-
-      if (this.status === 'idle') {
-        this.status = 'playing';
-      }
-    }
-
-    if (this.isGameOver()) {
-      this.status = 'lose';
-    }
+    this.move('right');
   }
+
   moveUp() {
-    const prev = JSON.stringify(this.field);
-
-    this.field = this.transpose(this.field);
-    this.moveHorizontal('left');
-    this.field = this.transpose(this.field);
-
-    const current = JSON.stringify(this.field);
-
-    if (prev !== current) {
-      this.addRandomTile();
-
-      if (this.isGameOver()) {
-        this.status = 'lose';
-      }
-
-      if (this.status === 'idle') {
-        this.status = 'playing';
-      }
-    }
-
-    if (this.isGameOver()) {
-      this.status = 'lose';
-    }
+    this.move('up');
   }
+
   moveDown() {
-    const prev = JSON.stringify(this.field);
-
-    this.field = this.transpose(this.field);
-    this.moveHorizontal('right');
-    this.field = this.transpose(this.field);
-
-    const current = JSON.stringify(this.field);
-
-    if (prev !== current) {
-      this.addRandomTile();
-
-      if (this.isGameOver()) {
-        this.status = 'lose';
-      }
-
-      if (this.status === 'idle') {
-        this.status = 'playing';
-      }
-    }
-
-    if (this.isGameOver()) {
-      this.status = 'lose';
-    }
+    this.move('down');
   }
 
   /**
@@ -164,9 +118,7 @@ class Game {
    * @returns {number[][]}
    */
   getState() {
-    const fieldClone = JSON.parse(JSON.stringify(this.field));
-
-    return fieldClone;
+    return JSON.parse(JSON.stringify(this.field));
   }
 
   /**
@@ -226,7 +178,10 @@ class Game {
         colIndex++
       ) {
         if (this.field[rowIndex][colIndex] === 0) {
-          coordinates.push({ r: rowIndex, c: colIndex });
+          coordinates.push({
+            r: rowIndex,
+            c: colIndex,
+          });
         }
       }
     }
@@ -257,15 +212,15 @@ class Game {
     for (let r = 0; r < this.ROW_SIZE; r++) {
       for (let c = 0; c < this.field[r].length; c++) {
         if (
-          c + 1 < this.ROW_SIZE &&
-          this.field[r][c] === this.field[r][c + 1]
+          c + 1 < this.ROW_SIZE
+          && this.field[r][c] === this.field[r][c + 1]
         ) {
           return false;
         }
 
         if (
-          r + 1 < this.ROW_SIZE &&
-          this.field[r][c] === this.field[r + 1][c]
+          r + 1 < this.ROW_SIZE
+          && this.field[r][c] === this.field[r + 1][c]
         ) {
           return false;
         }
