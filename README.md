@@ -1,5 +1,5 @@
 # 2048 Game
-- [DEMO LINK](https://Yevhen-Srdk.github.io/<repo_name>/)
+- [DEMO LINK](https://yevhen-srdk.github.io/2048-Game/)
 
 Hi there! This is my first JavaScript game project.
 I developed it to gain experience working with the DOM. 
